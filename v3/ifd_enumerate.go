@@ -587,7 +587,9 @@ func (ie *IfdEnumerate) scan(iiGeneral *exifcommon.IfdIdentity, ifdOffset uint32
 
 	// TODO(dustin): Add test
 
+	parsedOffsets := make(map[uint32]bool)
 	for ifdIndex := 0; ; ifdIndex++ {
+		parsedOffsets[ifdOffset] = true
 		iiSibling := iiGeneral.NewSibling(ifdIndex)
 
 		ifdEnumerateLogger.Debugf(nil, "Parsing IFD [%s] at offset (0x%04x) (scan).", iiSibling.String(), ifdOffset)
@@ -614,6 +616,9 @@ func (ie *IfdEnumerate) scan(iiGeneral *exifcommon.IfdIdentity, ifdOffset uint32
 			break
 		}
 
+		if parsedOffsets[nextIfdOffset] {
+			return errors.New("invalid exif offset")
+		}
 		ifdOffset = nextIfdOffset
 	}
 
